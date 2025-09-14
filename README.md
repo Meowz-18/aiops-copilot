@@ -23,10 +23,10 @@ accelerate-ai-lab3-starter/
     ├── env.template             # Environment template (complete)
     ├── server.py                # FastAPI server (TODO: implement)
     ├── Dockerfile               # Container config (TODO: implement)
-    ├── load_test.py             # Load testing (TODO: implement)
+    ├── elasticity_test.py       # Elasticity testing (TODO: implement)
     └── production_agent/        # Agent implementation
-        ├── __init__.py         # Package init (complete)
-        └── agent.py            # Agent logic (TODO: implement)
+        ├── __init__.py          # Package init (complete)
+        └── agent.py             # Agent logic (TODO: implement)
 ```
 
 ## 🎯 Files to Complete
@@ -44,14 +44,14 @@ You'll need to implement the following files by following the codelab instructio
 - 🚧 `adk-agent/production_agent/agent.py` - ADK agent implementation
 - 🚧 `adk-agent/server.py` - FastAPI server with endpoints
 - 🚧 `adk-agent/Dockerfile` - Container configuration
-- 🚧 `adk-agent/load_test.py` - Load testing script
+- 🚧 `adk-agent/elasticity_test.py` - Elasticity testing script
 
 ## 📚 Getting Started
 
 1. Follow the codelab instructions to implement each TODO section
 2. Copy and paste the provided code snippets
 3. Deploy Gemma backend to Cloud Run with GPU
-4. Deploy ADK agent and test with load testing
+4. Deploy ADK agent and test with elasticity testing
 
 ## 🔗 Resources
 
