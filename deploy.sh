@@ -36,7 +36,7 @@ echo "✅ Firestore ready"
 echo ""
 
 # 3. Deploy ADK Agent with Gemini
-echo "🤖 Deploying ADK Agent (with Gemini 1.5 Flash)..."
+echo "🤖 Deploying ADK Agent (with Gemini 2.5 Flash)..."
 if [ -d "adk-agent" ]; then
   cd adk-agent
   
