@@ -11,7 +11,10 @@ export const uploadLog = async (file: File): Promise<LogUploadResponse> => {
         body: formData,
     });
 
-    if (!response.ok) throw new Error('Upload failed');
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Upload failed: ${response.status} - ${errorText}`);
+    }
     return response.json();
 };
 
@@ -22,7 +25,10 @@ export const analyzeLogs = async (uploadId?: string, logText?: string): Promise<
         body: JSON.stringify({ uploadId, logText }),
     });
 
-    if (!response.ok) throw new Error('Analysis failed');
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Analysis failed: ${response.status} - ${errorText}`);
+    }
     return response.json();
 };
 
@@ -32,7 +38,10 @@ export const fetchIncidents = async (status?: string, severity?: string): Promis
     if (severity) params.append('severity', severity);
 
     const response = await fetch(`${API_BASE}/incidents?${params.toString()}`);
-    if (!response.ok) throw new Error('Failed to fetch incidents');
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to fetch incidents: ${response.status} - ${errorText}`);
+    }
     return response.json();
 };
 
@@ -43,6 +52,9 @@ export const login = async (email: string, password: string): Promise<AuthRespon
         body: JSON.stringify({ email, password }),
     });
 
-    if (!response.ok) throw new Error('Login failed');
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Login failed: ${response.status} - ${errorText}`);
+    }
     return response.json();
 };
