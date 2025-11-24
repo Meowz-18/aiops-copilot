@@ -1,5 +1,5 @@
-# TODO: Complete this file
-FROM python:3.13-slim
+# Production ADK Agent Dockerfile
+FROM python:3.11-slim
 
 # Copy uv from the official image
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
