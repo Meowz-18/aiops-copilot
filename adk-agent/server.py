@@ -12,6 +12,13 @@ from pydantic import BaseModel
 from google.adk.cli.fast_api import get_fast_api_app
 from production_agent.agent import production_agent
 from google.cloud import firestore
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+logger.info("Starting ADK Agent Server...")
 
 # Load environment variables
 load_dotenv()

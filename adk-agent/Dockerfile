@@ -1,6 +1,9 @@
 # Production ADK Agent Dockerfile – Cloud Run ready
 FROM python:3.11-slim
 
+# Allow statements and log messages to immediately appear in the Knative logs
+ENV PYTHONUNBUFFERED=1
+
 # Install system dependencies (curl for health‑check)
 RUN apt-get update && apt-get install -y \
     curl \
@@ -16,13 +19,12 @@ COPY pyproject.toml ./
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 ENV UV_SYSTEM_PYTHON=1
 
-# Copy the entire source tree (including the adk‑agent folder)
+# Copy the entire source tree
 COPY . .
 
-# Install Python dependencies (fastapi, uvicorn, google‑adk, etc.)
-RUN uv pip install --system -e .
-
-
+# Install Python dependencies (non-editable for production)
+# We use --no-cache-dir to keep the image small and ensure fresh installs
+RUN uv pip install --system --no-cache-dir .
 
 # Expose the port Cloud Run expects
 EXPOSE 8080
@@ -31,5 +33,6 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s \
     CMD curl -f http://localhost:8080/health || exit 1
 
-# Run the FastAPI app – server.py is in the current directory
-CMD ["python", "-m", "uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8080"]
+# Run the FastAPI app using uvicorn, listening on the PORT environment variable
+# We use sh -c to expand the PORT variable
+CMD ["sh", "-c", "uvicorn server:app --host 0.0.0.0 --port ${PORT:-8080}"]
