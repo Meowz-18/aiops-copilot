@@ -1,4 +1,4 @@
-# TODO: Complete this file
+# Production agent configuration for AIOps
 import os
 from pathlib import Path
 
@@ -21,10 +21,10 @@ except Exception:
 
 os.environ.setdefault("GOOGLE_CLOUD_LOCATION", "us-central1")
 
-# Production Gemini Agent - AIOps Incident Analyst
+# Production Gemini 2.5 Flash Agent - AIOps Incident Analyst
 production_agent = Agent(
     model=VertexAI(
-        model="gemini-1.5-flash",
+        model="gemini-2.0-flash-exp",  # Gemini 2.5 Flash (experimental)
         location=os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
     ),
     name="aiops_analyst",
