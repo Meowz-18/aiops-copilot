@@ -20,6 +20,47 @@ logger = logging.getLogger(__name__)
 
 logger.info("Starting ADK Agent Server...")
 
+# Load environment variables
+load_dotenv()
+
+AGENT_DIR = os.path.dirname(os.path.abspath(__file__))
+app_args = {"agents_dir": AGENT_DIR, "web": True}
+
+# Create FastAPI app with ADK integration
+try:
+    logger.info("Initializing ADK FastAPI app...")
+    app: FastAPI = get_fast_api_app(**app_args)
+    logger.info("ADK FastAPI app initialized successfully.")
+except Exception as e:
+    logger.error(f"Failed to initialize ADK app: {e}")
+    # Fallback app
+    app = FastAPI()
+
+# Add CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Update app metadata
+app.title = "AIOps Incident Co-Pilot"
+app.description = "AI-powered incident detection and analysis from server logs"
+app.version = "2.0.0"
+
+# Initialize Firestore
+try:
+    logger.info("Initializing Firestore client...")
+    db = firestore.Client()
+    incidents_collection = db.collection('incidents')
+    logger.info("Firestore client initialized successfully.")
+except Exception as e:
+    logger.error(f"Failed to initialize Firestore: {e}")
+    db = None
+    incidents_collection = None
+
 class Incident(BaseModel):
     incidentId: str
     createdAt: str
