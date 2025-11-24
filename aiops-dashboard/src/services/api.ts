@@ -15,11 +15,11 @@ export const uploadLog = async (file: File): Promise<LogUploadResponse> => {
     return response.json();
 };
 
-export const analyzeLogs = async (uploadId?: string): Promise<AnalysisResponse> => {
+export const analyzeLogs = async (uploadId?: string, logText?: string): Promise<AnalysisResponse> => {
     const response = await fetch(`${API_BASE}/analyze`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uploadId }),
+        body: JSON.stringify({ uploadId, logText }),
     });
 
     if (!response.ok) throw new Error('Analysis failed');

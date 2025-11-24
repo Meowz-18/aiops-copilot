@@ -58,6 +58,23 @@ export const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
         }
     };
 
+    const handleTextAnalyze = async (logText: string) => {
+        setIsUploading(true);
+        try {
+            const analysis = await analyzeLogs(undefined, logText);
+
+            // Add new incidents to the list
+            if (analysis.incidents && analysis.incidents.length > 0) {
+                setIncidents(prev => [...analysis.incidents, ...prev]);
+            }
+        } catch (error) {
+            console.error('Text analysis failed:', error);
+            alert('Failed to analyze log text. Please try again.');
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
     const handleIncidentClick = (incident: Incident) => {
         setSelectedIncident(incident);
         setIsDrawerOpen(true);
@@ -94,7 +111,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
         <Layout user={{ name: "Admin User", email: "admin@example.com" }} onLogout={onLogout}>
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                 <div className="lg:col-span-1">
-                    <LogUploader onUpload={handleUpload} isUploading={isUploading} />
+                    <LogUploader
+                        onUpload={handleUpload}
+                        onTextAnalyze={handleTextAnalyze}
+                        isUploading={isUploading}
+                    />
                 </div>
 
                 <div className="lg:col-span-3">

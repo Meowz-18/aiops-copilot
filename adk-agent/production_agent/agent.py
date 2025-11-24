@@ -4,7 +4,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from google.adk.agents import Agent
-from google.adk.models.lite_llm import LiteLlm
+from google.adk.models.vertex_ai import VertexAI
 import google.auth
 
 # Load environment variables
@@ -19,36 +19,14 @@ try:
 except Exception:
     pass
 
-# TODO: Complete this file
-import os
-from pathlib import Path
+os.environ.setdefault("GOOGLE_CLOUD_LOCATION", "us-central1")
 
-from dotenv import load_dotenv
-from google.adk.agents import Agent
-from google.adk.models.lite_llm import LiteLlm
-import google.auth
-
-# Load environment variables
-root_dir = Path(__file__).parent.parent
-dotenv_path = root_dir / ".env"
-load_dotenv(dotenv_path=dotenv_path)
-
-# Configure Google Cloud
-try:
-    _, project_id = google.auth.default()
-    os.environ.setdefault("GOOGLE_CLOUD_PROJECT", project_id)
-except Exception:
-    pass
-
-os.environ.setdefault("GOOGLE_CLOUD_LOCATION", "europe-west1")
-
-# Configure model connection
-gemma_model_name = os.getenv("GEMMA_MODEL_NAME", "gemma3:270m")
-api_base = os.getenv("OLLAMA_API_BASE", "localhost:10010")  # Location of Ollama server
-
-# Production Gemma Agent - AIOps Incident Analyst
+# Production Gemini Agent - AIOps Incident Analyst
 production_agent = Agent(
-    model=LiteLlm(model=f"ollama_chat/{gemma_model_name}", api_base=api_base),
+    model=VertexAI(
+        model="gemini-1.5-flash",
+        location=os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
+    ),
     name="aiops_analyst",
     description="An expert AIOps analyst that detects incidents from server logs.",
     instruction="""You are an expert AIOps Incident Analyst. Your job is to analyze server logs to detect incidents, identify root causes, and recommend runbook steps.
