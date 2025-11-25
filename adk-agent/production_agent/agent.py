@@ -1,11 +1,25 @@
 # Production agent configuration for AIOps
 import os
 from pathlib import Path
-
+import logging
+import google.auth
 from dotenv import load_dotenv
 from google.adk.agents import Agent
-from google.adk.models import VertexAI
-import google.auth
+
+# Configure logging for agent
+logger = logging.getLogger(__name__)
+
+# Try importing VertexAI from different locations
+try:
+    from google.adk.models import VertexAI
+    logger.info("Imported VertexAI from google.adk.models")
+except ImportError:
+    try:
+        from google.adk.models.vertex_ai import VertexAI
+        logger.info("Imported VertexAI from google.adk.models.vertex_ai")
+    except ImportError:
+        logger.error("Failed to import VertexAI from any known location")
+        raise
 
 # Load environment variables
 root_dir = Path(__file__).parent.parent
