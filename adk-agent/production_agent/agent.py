@@ -4,7 +4,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from google.adk.agents import Agent
-from google.adk.models.vertex_ai import VertexAI
+from google.adk.models import VertexAI
 import google.auth
 
 # Load environment variables
