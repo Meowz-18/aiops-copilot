@@ -1,38 +1,23 @@
-# Production ADK Agent Dockerfile – Cloud Run ready
+# Simple, robust Dockerfile for Cloud Run
 FROM python:3.11-slim
 
-# Allow statements and log messages to immediately appear in the Knative logs
+# Ensure logs are flushed immediately
 ENV PYTHONUNBUFFERED=1
 
-# Install system dependencies (curl for health‑check)
-RUN apt-get update && apt-get install -y \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
-
-# Set working directory to the repository root inside the container
 WORKDIR /app
 
-# Copy only the pyproject.toml for caching
-COPY pyproject.toml ./
+# Install system dependencies
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
-# Install UV (fast installer) for Python dependencies
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
-ENV UV_SYSTEM_PYTHON=1
+# Copy requirements definition
+COPY pyproject.toml .
 
-# Copy the entire source tree
+# Install dependencies using standard pip
+# We install the package in editable mode or just install deps
+RUN pip install --no-cache-dir .
+
+# Copy application code
 COPY . .
 
-# Install Python dependencies (non-editable for production)
-# We use --no-cache-dir to keep the image small and ensure fresh installs
-RUN uv pip install --system --no-cache-dir .
-
-# Expose the port Cloud Run expects
-EXPOSE 8080
-
-# Optional health‑check (Cloud Run will call /health)
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s \
-    CMD curl -f http://localhost:8080/health || exit 1
-
-# Run the FastAPI app using uvicorn, listening on the PORT environment variable
-# We use sh -c to expand the PORT variable
-CMD ["sh", "-c", "uvicorn server:app --host 0.0.0.0 --port ${PORT:-8080}"]
+# Run using python directly to ensure the __main__ block handles the PORT
+CMD ["python", "server.py"]
