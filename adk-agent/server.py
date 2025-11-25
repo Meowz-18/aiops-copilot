@@ -75,6 +75,14 @@ class Incident(BaseModel):
 class AnalysisResponse(BaseModel):
     incidents: List[Incident]
 
+class AnalyzeRequest(BaseModel):
+    uploadId: Optional[str] = None
+    logText: Optional[str] = None
+
+@app.get("/")
+def root():
+    return {"status": "running", "service": "production-adk-agent"}
+
 @app.get("/health")
 def health_check():
     return {"status": "healthy", "service": "production-adk-agent", "version": "2.0.0"}
