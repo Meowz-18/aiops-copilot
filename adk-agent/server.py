@@ -10,7 +10,6 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from google.adk.cli.fast_api import get_fast_api_app
 from google.cloud import firestore
 import logging
 
@@ -23,9 +22,6 @@ logger.info("Starting ADK Agent Server...")
 # Load environment variables
 load_dotenv()
 
-AGENT_DIR = os.path.dirname(os.path.abspath(__file__))
-app_args = {"agents_dir": AGENT_DIR, "web": True}
-
 # Initialize production agent safely
 production_agent = None
 try:
@@ -35,15 +31,9 @@ try:
 except Exception as e:
     logger.error(f"Failed to import production agent: {e}")
 
-# Create FastAPI app with ADK integration
-try:
-    logger.info("Initializing ADK FastAPI app...")
-    app: FastAPI = get_fast_api_app(**app_args)
-    logger.info("ADK FastAPI app initialized successfully.")
-except Exception as e:
-    logger.error(f"Failed to initialize ADK app: {e}")
-    # Fallback app
-    app = FastAPI()
+# Create standard FastAPI app
+# We are bypassing get_fast_api_app to avoid ADK auto-discovery issues
+app = FastAPI()
 
 # Add CORS
 app.add_middleware(

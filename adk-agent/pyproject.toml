@@ -1,5 +1,5 @@
 [project]
-name = "production-adk-agent"
+name = "production_agent"
 version = "0.1.0"
 description = "Production-ready ADK agent for Lab 3 - Prototype to Production"
 readme = "README.md"
