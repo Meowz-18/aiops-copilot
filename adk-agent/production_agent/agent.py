@@ -9,17 +9,26 @@ from google.adk.agents import Agent
 # Configure logging for agent
 logger = logging.getLogger(__name__)
 
-# Try importing VertexAI from different locations
+# Try importing VertexAI/Gemini from different locations
+ModelClass = None
 try:
     from google.adk.models import VertexAI
+    ModelClass = VertexAI
     logger.info("Imported VertexAI from google.adk.models")
 except ImportError:
     try:
         from google.adk.models.vertex_ai import VertexAI
+        ModelClass = VertexAI
         logger.info("Imported VertexAI from google.adk.models.vertex_ai")
     except ImportError:
-        logger.error("Failed to import VertexAI from any known location")
-        raise
+        try:
+            from google.adk.models.google_llm import Gemini
+            ModelClass = Gemini
+            logger.info("Imported Gemini from google.adk.models.google_llm")
+        except ImportError:
+            logger.error("Failed to import VertexAI or Gemini from any known location")
+            # Don't raise here, let it fail later or handle gracefully
+            pass
 
 # Load environment variables
 root_dir = Path(__file__).parent.parent
@@ -35,15 +44,16 @@ except Exception:
 
 os.environ.setdefault("GOOGLE_CLOUD_LOCATION", "us-central1")
 
-# Production Gemini 2.5 Flash Agent - AIOps Incident Analyst
-production_agent = Agent(
-    model=VertexAI(
-        model="gemini-2.0-flash-exp",  # Gemini 2.5 Flash (experimental)
-        location=os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
-    ),
-    name="aiops_analyst",
-    description="An expert AIOps analyst that detects incidents from server logs.",
-    instruction="""You are an expert AIOps Incident Analyst. Your job is to analyze server logs to detect incidents, identify root causes, and recommend runbook steps.
+if ModelClass:
+    # Production Gemini 2.5 Flash Agent - AIOps Incident Analyst
+    production_agent = Agent(
+        model=ModelClass(
+            model="gemini-2.0-flash-exp",  # Gemini 2.5 Flash (experimental)
+            location=os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
+        ),
+        name="aiops_analyst",
+        description="An expert AIOps analyst that detects incidents from server logs.",
+        instruction="""You are an expert AIOps Incident Analyst. Your job is to analyze server logs to detect incidents, identify root causes, and recommend runbook steps.
 
     The logs you will analyze have the following columns:
     - IP: The client IP address.
@@ -64,8 +74,11 @@ production_agent = Agent(
     - The affected **Service** (infer from the URL or assume 'web-server').
 
     Always be professional, precise, and helpful. Output your analysis in a structured JSON format if requested, or clear text otherwise.""",
-    tools=[], 
-)
+        tools=[], 
+    )
+else:
+    logger.error("Could not initialize production_agent due to missing Model class")
+    production_agent = None
 
 # Set as root agent
 root_agent = production_agent
